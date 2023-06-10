@@ -1,8 +1,12 @@
 import React, {useRef, useEffect} from 'react'
 
+
+
 function Canvas() {
     const canvasRef = useRef(null)
-
+    const mouse = []
+    const stroke = []
+    
     function renderFrame() {
         const canvas = canvasRef.current
         canvas.width = window.innerWidth * 0.40
@@ -13,24 +17,49 @@ function Canvas() {
         ctx.fillStyle = "#333"
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
+        let isDrawing = false
 
         class pen {
-            constructor(mouseX, mouseY) {
-                this.mouse = []
-                this.isDrawing = false
+            constructor() {
                 
             }
-            draw() {
-                
+            draw(x, y) {
+                ctx.fillStyle = '#111111'
+                ctx.lineWidth = 3
+                ctx.beginPath()
+                ctx.moveTo(mouse[0]?.x, mouse[0]?.y)
+
+                for (let i = 0; i < mouse.length; i++) {
+                    ctx.lineTo(mouse[i]?.x, mouse[i]?.y)
+                }
+                ctx.stroke()
             }
 
         }
+        
+        canvas.addEventListener('mousedown', () => {
+            isDrawing = true
+        })
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false
+            stroke.push(new pen()) 
+        })
 
 
         canvas.addEventListener('mousemove', (e) => {
-            console.log({x: e.clientX, y: e.clientY})
             
-        })
+            if (isDrawing && mouse[mouse.length - 1]?.x !== e.clientX - canvasPosition.left && mouse[mouse.length - 1]?.y !== e.clientY - canvasPosition.top) {
+                mouse.push({x: e.clientX - canvasPosition.left, y: e.clientY - canvasPosition.top})
+            }
+            
+        }) 
+        
+        
+
+        for (let i = 0; i < stroke.length; i++) {
+            stroke[i].draw(mouse[mouse.length - 1]?.x, mouse[mouse.length - 1]?.y)
+        }
+        
     }
 
 
